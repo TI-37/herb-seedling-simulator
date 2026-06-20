@@ -326,6 +326,9 @@ function recalcAll() {
   renderCostBar(result);
   renderResultTable(result);
   renderCompareTable(input);
+  // 入力のたびにアクティブタブへ反映し、ブラウザに保存（閉じても残す）
+  saveActive();
+  persistTabs();
 }
 
 /* ------------------------------------------------------------
@@ -405,15 +408,46 @@ function getTab(id) { return tabs.find(function (t) { return t.id === id; }); }
 function tabIndex(id) { return tabs.findIndex(function (t) { return t.id === id; }); }
 function saveActive() { const t = getTab(activeId); if (t) t.state = snapshotForm(); }
 
+// localStorage 保存キー
+const STORE_KEY = "herbSim.v1";
+
+// 現在の全タブ内容をブラウザに保存（閉じても残す）
+function persistTabs() {
+  try {
+    localStorage.setItem(STORE_KEY, JSON.stringify({ activeId: activeId, tabSeq: tabSeq, tabs: tabs }));
+  } catch (e) { /* 保存できない環境では無視 */ }
+}
+
+// 保存済みデータを読み込む（なければ null）
+function loadSaved() {
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    if (!raw) return null;
+    const data = JSON.parse(raw);
+    if (!data || !Array.isArray(data.tabs) || data.tabs.length === 0) return null;
+    return data;
+  } catch (e) { return null; }
+}
+
 function initTabs() {
-  // ラベンダー／ローズマリーは標準固定（改名・削除不可）
-  tabs = [
-    { id: "t" + (++tabSeq), name: "ラベンダー",   emoji: "💜", fixed: true, state: snapshotForm() },
-    { id: "t" + (++tabSeq), name: "ローズマリー", emoji: "🌿", fixed: true, state: blankState() },
-  ];
-  activeId = tabs[0].id;
+  const saved = loadSaved();
+  if (saved) {
+    // 前回開いていた内容を丸ごと復元
+    tabs = saved.tabs;
+    tabSeq = saved.tabSeq || tabs.length;
+    activeId = getTab(saved.activeId) ? saved.activeId : tabs[0].id;
+    applyState(getTab(activeId).state);
+  } else {
+    // 初回：ラベンダー／ローズマリーは標準固定（改名・削除不可）
+    tabs = [
+      { id: "t" + (++tabSeq), name: "ラベンダー",   emoji: "💜", fixed: true, state: snapshotForm() },
+      { id: "t" + (++tabSeq), name: "ローズマリー", emoji: "🌿", fixed: true, state: blankState() },
+    ];
+    activeId = tabs[0].id;
+  }
   renderTabBar();
   syncTitle();
+  persistTabs();
 }
 
 // 下部タブバーを描画（Dock風：タブはスクロール領域、＋は右端固定）
@@ -499,6 +533,7 @@ function renameTab(id) {
   t.name = trimmed;
   if (id === activeId) syncTitle();     // タイトル表記に反映
   renderTabBar();
+  persistTabs();
 }
 
 // 追加タブの削除
@@ -516,6 +551,7 @@ function deleteTab(id) {
     recalcAll();
   }
   renderTabBar();
+  persistTabs();
 }
 
 // タイトルに現在のタブ名を反映
@@ -609,6 +645,8 @@ function bindToggleAll() {
 
 function bindReset() {
   document.getElementById("resetBtn").addEventListener("click", function () {
+    // 保存データも消して、完全に初期状態へ戻す
+    try { localStorage.removeItem(STORE_KEY); } catch (e) {}
     location.reload();
   });
 }
