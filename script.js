@@ -145,6 +145,7 @@ function renderQty(r) {
     { label: "ポット", value: n(r.potsNeeded) + " 個", sub: "約 " + r.potPacks + " 袋" },
     { label: "培土",  value: n1(r.soilLiters) + " L", sub: "約 " + r.soilPacks + " 袋" },
     { label: "発送",  value: n(r.boxesNeeded) + " 箱", sub: "発送回数と同じ" },
+    { label: "損益分岐 販売本数", value: unitsText(r.breakEvenUnits), sub: "黒字ライン" },
   ];
   document.getElementById("qtyGrid").innerHTML = cards.map(function (c) {
     return `<div class="qty-card">
@@ -166,8 +167,6 @@ function renderKpi(r) {
   const ppu = document.getElementById("kpiProfitPerUnit");
   ppu.textContent = yen(r.profitPerUnit);
   ppu.className = "kpi-value " + signClass(r.profitPerUnit);
-
-  document.getElementById("kpiBeUnits").textContent = unitsText(r.breakEvenUnits);
 }
 
 /* ------------------------------------------------------------
@@ -417,10 +416,10 @@ function initTabs() {
   syncTitle();
 }
 
-// 下部タブバーを描画
+// 下部タブバーを描画（Dock風：タブはスクロール領域、＋は右端固定）
 function renderTabBar() {
   const bar = document.getElementById("tabbar");
-  let html = tabs.map(function (t) {
+  const tabsHtml = tabs.map(function (t) {
     const active = t.id === activeId ? " active" : "";
     // 追加タブ（固定でない）には × 削除ボタンを付ける
     const del = t.fixed ? "" : `<span class="tab-del" data-del="${t.id}" title="削除" aria-label="削除">×</span>`;
@@ -430,8 +429,8 @@ function renderTabBar() {
       <span class="tab-label">${escapeHtml(t.name || "品目")}</span>
     </button>`;
   }).join("");
-  html += `<button type="button" class="tab-add" id="tabAdd" title="品目を追加" aria-label="品目を追加">＋</button>`;
-  bar.innerHTML = html;
+  bar.innerHTML = `<div class="tab-scroll">${tabsHtml}</div>
+    <button type="button" class="tab-add" id="tabAdd" title="品目を追加" aria-label="品目を追加">＋</button>`;
 
   // 各タブ：タップで切替／（追加タブのみ）長押しで改名
   bar.querySelectorAll("button.tab").forEach(function (b) {
@@ -445,6 +444,17 @@ function renderTabBar() {
     });
   });
   document.getElementById("tabAdd").addEventListener("click", addTab);
+  scrollActiveIntoView();
+}
+
+// アクティブなタブが見えるよう、Dock（横スクロール）を中央寄せ
+function scrollActiveIntoView() {
+  const sc = document.querySelector(".tab-scroll");
+  if (!sc) return;
+  const btn = sc.querySelector("button.tab.active");
+  if (!btn) return;
+  const target = btn.offsetLeft - (sc.clientWidth - btn.offsetWidth) / 2;
+  sc.scrollTo({ left: Math.max(0, target), behavior: "smooth" });
 }
 
 // 1つのタブボタンに、タップ切替＆長押し改名を割り当てる

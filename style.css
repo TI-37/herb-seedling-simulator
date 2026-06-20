@@ -30,7 +30,11 @@
 }
 
 * { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; }
+html {
+  -webkit-text-size-adjust: 100%;
+  /* 引っぱって更新・ゴムのような跳ね返りを抑え、アプリのような操作感に */
+  overscroll-behavior: none;
+}
 
 body {
   margin: 0;
@@ -41,6 +45,17 @@ body {
   -webkit-font-smoothing: antialiased;
   /* 下部固定タブに隠れないよう余白を確保 */
   padding-bottom: calc(66px + var(--safe-b));
+  /* アプリ感：タップ時のハイライト・テキスト選択・長押しメニューを抑制 */
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  overscroll-behavior: none;
+}
+/* 入力欄だけは選択・編集できるようにする */
+input, select, textarea {
+  -webkit-user-select: text;
+  user-select: text;
 }
 
 /* ---------- 画面下部の常時表示タブ ---------- */
@@ -49,15 +64,30 @@ body {
   left: 0; right: 0; bottom: 0;
   z-index: 100;
   display: flex;
+  align-items: stretch;
   background: #fff;
   border-top: 1px solid var(--border);
   box-shadow: 0 -2px 10px rgba(94, 69, 149, 0.10);
   padding-bottom: var(--safe-b);
 }
+/* Dock風：タブはサイズ固定で、増えたら横スクロール */
+.tab-scroll {
+  position: relative;
+  flex: 1 1 auto;
+  display: flex;
+  gap: 4px;
+  padding: 4px 6px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  scrollbar-width: none;          /* スクロールバー非表示 */
+}
+.tab-scroll::-webkit-scrollbar { display: none; }
+
 .tabbar button {
   position: relative;
-  flex: 1 1 0;
-  min-width: 0;
+  flex: 0 0 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -73,6 +103,15 @@ body {
   -webkit-touch-callout: none;   /* 長押し時のメニュー抑止 */
   user-select: none;
 }
+/* 品目タブは固定幅（縮まない）＋Dock風の拡大演出 */
+.tabbar button.tab {
+  width: 80px;
+  border-radius: 12px;
+  transition: transform .12s ease, background .12s ease;
+  transform-origin: bottom center;
+}
+.tabbar button.tab:hover { transform: scale(1.12); }
+.tabbar button.tab:active { transform: scale(1.04); }
 /* 追加タブの × 削除ボタン */
 .tabbar .tab-del {
   position: absolute;
@@ -253,33 +292,35 @@ body {
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 10px 12px;
   padding: 12px 14px 14px;
+  align-items: end;   /* ラベルが1行/2行でも、入力欄の下端を揃えて改行ずれを防ぐ */
 }
 .group-body > .hint { grid-column: 1 / -1; margin: 2px 0; }
 .group-body > .field.two { grid-column: 1 / -1; }
 
 /* ---------- 入力項目 ---------- */
+/* グリッド化：ラベルは独立行、入力欄(1fr)＋単位(auto)は必ず同じ行。
+   単位の長短や折り返しに関係なく入力欄の位置が必ず揃う（改行ずれ防止） */
 .field {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: 1fr auto;
   align-items: center;
-  gap: 4px 6px;
+  column-gap: 6px;
+  row-gap: 4px;
   margin: 0;
   min-width: 0;
 }
 .field > label {
-  flex: 0 0 100%;
+  grid-column: 1 / -1;
   font-size: 0.78rem;
   font-weight: 600;
   line-height: 1.3;
-  min-height: 2.0em;
-  display: flex;
-  align-items: flex-end;
+  align-self: end;
 }
 .field input[type="number"],
 .field select {
-  flex: 1 1 60px;
+  grid-column: 1;
   min-width: 0;
-  width: auto;
+  width: 100%;
   padding: 10px;
   font-size: 16px;            /* iOSの自動ズーム防止 */
   border: 1px solid var(--border);
@@ -298,16 +339,16 @@ body {
   color: var(--muted);
 }
 .field .unit {
+  grid-column: 2;
   font-size: 0.7rem;
   color: var(--muted);
-  flex: 0 1 auto;
-  min-width: 0;
-  overflow-wrap: anywhere;
+  white-space: nowrap;       /* 入力欄の下に回り込ませない */
 }
 
-/* 複合入力（円 ÷ 個 など）は全幅 */
-.field.two { grid-column: 1 / -1; }
-.pair { display: flex; align-items: center; gap: 6px; flex: 1 1 100%; min-width: 0; flex-wrap: wrap; }
+/* 複合入力（円 ÷ 個 など）は全幅・1列。中身のpairが横並びを担う */
+.field.two { grid-column: 1 / -1; grid-template-columns: 1fr; }
+.field.two > label { grid-column: 1; }
+.pair { display: flex; align-items: center; gap: 6px; min-width: 0; flex-wrap: wrap; }
 .pair input { flex: 1 1 50px; min-width: 0; }
 .pair .unit { white-space: nowrap; }
 
@@ -323,10 +364,10 @@ body {
 }
 .check input { width: 18px; height: 18px; accent-color: var(--lav); }
 
-/* 販売チャネル欄（常時表示） */
-.channel-field { margin-bottom: 14px; }
-.channel-field > label { flex: 0 0 100%; }
-.channel-field .unit { flex: 1 1 100%; margin-top: 2px; }
+/* 販売チャネル欄（常時表示）：1列にして注釈は全幅で折り返す */
+.channel-field { margin-bottom: 14px; grid-template-columns: 1fr; }
+.channel-field > label { grid-column: 1; }
+.channel-field .unit { grid-column: 1; white-space: normal; margin-top: 2px; }
 
 .reset-btn {
   width: 100%;
@@ -365,7 +406,7 @@ body {
 /* ---------- KPIカード ---------- */
 .kpi-row {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
 }
 .kpi {
@@ -374,9 +415,26 @@ body {
   border-radius: 12px;
   padding: 10px 8px;
   text-align: center;
+  /* ラベルが2行になっても数値の高さを揃える */
+  display: flex;
+  flex-direction: column;
 }
-.kpi-label { display: block; font-size: 0.7rem; color: var(--lav-dark); }
-.kpi-value { display: block; font-size: 1.15rem; font-weight: 800; margin-top: 4px; }
+.kpi-label {
+  font-size: 0.7rem;
+  color: var(--lav-dark);
+  line-height: 1.2;
+  min-height: 2.4em;          /* 1行/2行いずれでも同じ高さを確保 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.kpi-value {
+  font-size: 1.15rem;
+  font-weight: 800;
+  margin-top: auto;           /* 数値をカード下端に揃える */
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;    /* 桁が増えても枠内に収める */
+}
 
 /* ---------- 経費の内訳バー ---------- */
 .cost-bar {
@@ -408,6 +466,8 @@ body {
 }
 .result-table thead th { background: var(--lav); color: #fff; font-weight: 600; white-space: nowrap; }
 .result-table .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+/* ラベル側を折り返し可にして、桁数が増えても数値が枠からはみ出さないように */
+.result-table td:first-child { overflow-wrap: anywhere; }
 
 /* グループ見出し行 */
 .result-table tr.group-row td {
@@ -424,18 +484,29 @@ body {
 .minus { color: var(--minus); font-weight: 700; }
 
 /* 比較表（行列を入れ替え、横スクロールなしで全表示） */
-.compare-table { width: 100%; table-layout: fixed; font-size: 0.84rem; }
-.compare-table th, .compare-table td { padding: 9px 8px; }
+.compare-table { width: 100%; table-layout: fixed; font-size: 0.82rem; }
+.compare-table th, .compare-table td { padding: 8px 5px; }
 .compare-table th:first-child, .compare-table td:first-child {
   text-align: left;
   font-weight: 600;
   white-space: normal;       /* 「1本あたり利益」などは折り返す */
-  width: 36%;
+  overflow-wrap: anywhere;
+  width: 28%;                /* 数値列を広げる */
 }
-.compare-table .num { white-space: nowrap; }
+/* 数値は各列の中央に。桁数が増えたら折り返して枠内に収める */
+.compare-table .num {
+  text-align: center;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+/* 列の境目に縦線を入れる */
+.compare-table th:not(:first-child),
+.compare-table td:not(:first-child) { border-left: 1px solid var(--border); }
 /* 粗利益が最大のセット列を強調 */
 .compare-table th.best-col { background: var(--lav-dark); }
 .compare-table td.best-col { background: #f3ecfb; font-weight: 700; }
+/* 粗利益の行は少し大きめ（はみ出さない範囲で・区切り線の色替えはしない） */
+.compare-table tr.total td { font-size: 0.95rem; }
 
 /* ---------- iPhone 16 最適化（〜430px） ---------- */
 @media (max-width: 430px) {
