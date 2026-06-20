@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ハーブ苗 収益シミュレーター</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="app-header">
+    <h1>🌱 ハーブ苗 収益シミュレーター</h1>
+    <p class="subtitle">兼業・副業でのハーブ苗（ラベンダー／9cmポット苗）販売の売上・経費・利益・損益分岐点を計算します。</p>
+  </header>
+
+  <main class="layout">
+    <!-- ============ 左：入力フォーム ============ -->
+    <section class="panel input-panel">
+      <h2>入力項目</h2>
+      <p class="hint">数値を変更すると自動で再計算されます。</p>
+
+      <!-- 販売チャネル（手数料率をまとめて切り替え。あとからBASE/楽天/Amazon等を追加しやすい構造） -->
+      <div class="field">
+        <label for="channel">販売チャネル</label>
+        <select id="channel"></select>
+        <span class="unit">手数料率は自動入力（手入力で上書き可）</span>
+      </div>
+
+      <fieldset>
+        <legend>売上の前提</legend>
+
+        <div class="field">
+          <label for="unitsSold">販売本数</label>
+          <input type="number" id="unitsSold" min="0" step="1" value="60" />
+          <span class="unit">本</span>
+        </div>
+
+        <div class="field">
+          <label for="price">1本あたり販売価格</label>
+          <input type="number" id="price" min="0" step="10" value="800" />
+          <span class="unit">円</span>
+        </div>
+
+        <div class="field">
+          <label for="commissionRate">販売手数料率</label>
+          <input type="number" id="commissionRate" min="0" max="100" step="0.1" value="10" />
+          <span class="unit">％</span>
+        </div>
+
+        <div class="field">
+          <label for="lossRate">不良率・ロス率</label>
+          <input type="number" id="lossRate" min="0" max="99" step="0.5" value="0" />
+          <span class="unit">％</span>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>セット販売の前提</legend>
+
+        <div class="field">
+          <label for="setSize">セット本数（メイン試算用）</label>
+          <input type="number" id="setSize" min="1" step="1" value="5" />
+          <span class="unit">本／セット</span>
+        </div>
+
+        <div class="field">
+          <label for="setDiscount">セット割引率（メイン試算用）</label>
+          <input type="number" id="setDiscount" min="0" max="100" step="0.5" value="0" />
+          <span class="unit">％</span>
+        </div>
+
+        <p class="hint">下の比較表（2〜5本セット）の割引率は個別に設定できます。</p>
+        <div class="field">
+          <label for="disc2">2本セット割引率</label>
+          <input type="number" id="disc2" min="0" max="100" step="0.5" value="0" />
+          <span class="unit">％</span>
+        </div>
+        <div class="field">
+          <label for="disc3">3本セット割引率</label>
+          <input type="number" id="disc3" min="0" max="100" step="0.5" value="5" />
+          <span class="unit">％</span>
+        </div>
+        <div class="field">
+          <label for="disc4">4本セット割引率</label>
+          <input type="number" id="disc4" min="0" max="100" step="0.5" value="8" />
+          <span class="unit">％</span>
+        </div>
+        <div class="field">
+          <label for="disc5">5本セット割引率</label>
+          <input type="number" id="disc5" min="0" max="100" step="0.5" value="10" />
+          <span class="unit">％</span>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>資材費（仕入れ単位で入力）</legend>
+
+        <div class="field two">
+          <label>種代</label>
+          <div class="pair">
+            <input type="number" id="seedPackPrice" min="0" step="1" value="370" />
+            <span class="unit">円 ÷</span>
+            <input type="number" id="seedPackQty" min="1" step="1" value="60" />
+            <span class="unit">粒</span>
+          </div>
+        </div>
+
+        <div class="field two">
+          <label>ポット代（プラステラ90型）</label>
+          <div class="pair">
+            <input type="number" id="potPackPrice" min="0" step="1" value="388" />
+            <span class="unit">円 ÷</span>
+            <input type="number" id="potPackQty" min="1" step="1" value="10" />
+            <span class="unit">個</span>
+          </div>
+        </div>
+
+        <div class="field two">
+          <label>培土代</label>
+          <div class="pair">
+            <input type="number" id="soilPrice" min="0" step="1" value="1740" />
+            <span class="unit">円 ÷</span>
+            <input type="number" id="soilVolume" min="0.1" step="0.1" value="6" />
+            <span class="unit">L</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="soilPerPot">培土使用量</label>
+          <input type="number" id="soilPerPot" min="0" step="0.05" value="0.2" />
+          <span class="unit">L／ポット</span>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>発送費</legend>
+
+        <div class="field">
+          <label for="boxPrice">箱代</label>
+          <input type="number" id="boxPrice" min="0" step="1" value="30" />
+          <span class="unit">円／箱</span>
+        </div>
+
+        <div class="field">
+          <label for="shippingPrice">送料</label>
+          <input type="number" id="shippingPrice" min="0" step="10" value="940" />
+          <span class="unit">円／発送</span>
+        </div>
+
+        <div class="field">
+          <label for="shipments">発送回数</label>
+          <input type="number" id="shipments" min="0" step="1" value="12" />
+          <span class="unit">回</span>
+          <button type="button" id="autoShipments" class="mini-btn">セット本数から自動計算</button>
+        </div>
+
+        <div class="field">
+          <label for="otherCost">その他経費</label>
+          <input type="number" id="otherCost" min="0" step="100" value="0" />
+          <span class="unit">円</span>
+        </div>
+      </fieldset>
+
+      <button type="button" id="resetBtn" class="reset-btn">初期値に戻す</button>
+    </section>
+
+    <!-- ============ 右：計算結果 ============ -->
+    <section class="panel result-panel">
+      <h2>計算結果（メイン試算）</h2>
+
+      <div class="kpi-row">
+        <div class="kpi">
+          <span class="kpi-label">粗利益</span>
+          <span class="kpi-value" id="kpiProfit">-</span>
+        </div>
+        <div class="kpi">
+          <span class="kpi-label">1本あたり利益</span>
+          <span class="kpi-value" id="kpiProfitPerUnit">-</span>
+        </div>
+        <div class="kpi">
+          <span class="kpi-label">損益分岐 販売本数</span>
+          <span class="kpi-value" id="kpiBeUnits">-</span>
+        </div>
+      </div>
+
+      <table class="result-table" id="resultTable">
+        <thead>
+          <tr><th>項目</th><th class="num">金額・数値</th></tr>
+        </thead>
+        <tbody><!-- JSで生成 --></tbody>
+      </table>
+
+      <h2>セット本数 比較表</h2>
+      <p class="hint">同じ販売本数で、セット本数（＝1回の発送でまとめる本数）を変えた場合の比較です。セットが大きいほど発送回数が減り送料が下がりますが、割引も効きます。</p>
+      <div class="table-scroll">
+        <table class="result-table compare-table" id="compareTable">
+          <thead>
+            <tr>
+              <th>セット本数</th>
+              <th class="num">割引率</th>
+              <th class="num">発送回数</th>
+              <th class="num">総売上</th>
+              <th class="num">総経費</th>
+              <th class="num">粗利益</th>
+              <th class="num">1本あたり利益</th>
+            </tr>
+          </thead>
+          <tbody><!-- JSで生成 --></tbody>
+        </table>
+      </div>
+
+      <p class="footnote">※ 金額は円単位で四捨五入して表示しています。種・ポット・培土代はロス率を見込んだ生産必要本数で計算します。</p>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>

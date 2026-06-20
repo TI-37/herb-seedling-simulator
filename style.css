@@ -1,0 +1,207 @@
+/* ============================================================
+   ハーブ苗 収益シミュレーター スタイル
+   - 農業初心者でも読みやすいよう、文字大きめ・余白広め
+   ============================================================ */
+
+:root {
+  --green: #3a7d44;
+  --green-dark: #2c5e34;
+  --green-light: #e8f3ea;
+  --accent: #d98324;
+  --bg: #f6f7f4;
+  --panel-bg: #ffffff;
+  --text: #2b2b2b;
+  --muted: #6b6b6b;
+  --border: #d9ddd4;
+  --plus: #1b7a3d;   /* 黒字（プラス）の色 */
+  --minus: #c0392b;  /* 赤字（マイナス）の色 */
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: "Hiragino Kaku Gothic ProN", "Meiryo", "Yu Gothic", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+}
+
+/* ---------- ヘッダー ---------- */
+.app-header {
+  background: var(--green);
+  color: #fff;
+  padding: 20px 24px;
+}
+.app-header h1 { margin: 0 0 4px; font-size: 1.5rem; }
+.subtitle { margin: 0; font-size: 0.9rem; opacity: 0.92; }
+
+/* ---------- レイアウト ---------- */
+.layout {
+  display: grid;
+  grid-template-columns: minmax(320px, 420px) 1fr;
+  gap: 20px;
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+@media (max-width: 860px) {
+  .layout { grid-template-columns: 1fr; }
+}
+
+.panel {
+  background: var(--panel-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px 20px;
+}
+.panel h2 {
+  font-size: 1.1rem;
+  margin: 0 0 8px;
+  color: var(--green-dark);
+  border-bottom: 2px solid var(--green-light);
+  padding-bottom: 6px;
+}
+.result-panel h2:not(:first-of-type) { margin-top: 26px; }
+
+.hint { font-size: 0.8rem; color: var(--muted); margin: 4px 0 12px; }
+.footnote { font-size: 0.75rem; color: var(--muted); margin-top: 14px; }
+
+/* ---------- 入力フォーム ---------- */
+fieldset {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  margin: 0 0 16px;
+  padding: 12px 14px 6px;
+}
+legend {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--green-dark);
+  padding: 0 6px;
+}
+
+.field {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+.field label {
+  flex: 0 0 100%;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+.field.two label { flex: 0 0 100%; }
+
+.field input[type="number"],
+.field select {
+  flex: 1 1 90px;
+  min-width: 80px;
+  padding: 8px 10px;
+  font-size: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fff;
+}
+.field input[type="number"]:focus,
+.field select:focus {
+  outline: none;
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px var(--green-light);
+}
+
+.field .unit {
+  font-size: 0.8rem;
+  color: var(--muted);
+  flex: 0 0 auto;
+}
+
+/* 「円 ÷ 個」のような複合入力 */
+.pair {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1 1 100%;
+}
+.pair input { flex: 1 1 60px; }
+
+.mini-btn {
+  flex: 0 0 auto;
+  font-size: 0.72rem;
+  padding: 5px 8px;
+  border: 1px solid var(--green);
+  background: #fff;
+  color: var(--green-dark);
+  border-radius: 6px;
+  cursor: pointer;
+}
+.mini-btn:hover { background: var(--green-light); }
+
+.reset-btn {
+  width: 100%;
+  padding: 10px;
+  font-size: 0.9rem;
+  background: #fff;
+  color: var(--green-dark);
+  border: 1px solid var(--green);
+  border-radius: 8px;
+  cursor: pointer;
+}
+.reset-btn:hover { background: var(--green-light); }
+
+/* ---------- KPIカード ---------- */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+@media (max-width: 480px) {
+  .kpi-row { grid-template-columns: 1fr; }
+}
+.kpi {
+  background: var(--green-light);
+  border-radius: 10px;
+  padding: 12px;
+  text-align: center;
+}
+.kpi-label { display: block; font-size: 0.78rem; color: var(--green-dark); }
+.kpi-value { display: block; font-size: 1.35rem; font-weight: 800; margin-top: 4px; }
+
+/* ---------- 結果テーブル ---------- */
+.table-scroll { overflow-x: auto; }
+.result-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+.result-table th,
+.result-table td {
+  border-bottom: 1px solid var(--border);
+  padding: 9px 10px;
+  text-align: left;
+}
+.result-table thead th {
+  background: var(--green);
+  color: #fff;
+  font-weight: 600;
+}
+.result-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+.result-table tbody tr:nth-child(even) { background: #fafbf8; }
+
+/* 小計・合計などの強調行 */
+.result-table tr.subtotal td { font-weight: 700; background: #f0f5ef; }
+.result-table tr.total td { font-weight: 800; background: var(--green-light); font-size: 1rem; }
+
+/* 黒字・赤字の色 */
+.plus { color: var(--plus); font-weight: 700; }
+.minus { color: var(--minus); font-weight: 700; }
+
+/* 比較表で最良行をハイライト */
+.compare-table tr.best { background: #fff6e6; }
+.compare-table tr.best td:first-child::after {
+  content: " ★";
+  color: var(--accent);
+}

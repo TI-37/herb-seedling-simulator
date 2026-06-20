@@ -1,0 +1,7 @@
+# OS / エディタ
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# プレビュー用ローカルサーバー（このリポジトリには含めない）
+server.ps1
