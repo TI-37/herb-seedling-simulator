@@ -175,7 +175,8 @@ input, select, textarea {
   margin: 0 auto;
 }
 @media (max-width: 860px) {
-  .layout { grid-template-columns: minmax(0, 1fr); gap: 14px; padding: 12px; }
+  /* スマホでは大外枠の余白を半分にして表示幅を広げる */
+  .layout { grid-template-columns: minmax(0, 1fr); gap: 10px; padding: 10px 6px; }
 }
 
 .panel {

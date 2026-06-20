@@ -178,7 +178,7 @@ function renderCostBar(r) {
     { label: "種代",      value: r.seedCost,     color: "#9ccc8f" },
     { label: "ポット代",  value: r.potCost,      color: "#f0b86e" },
     { label: "培土代",    value: r.soilCost,     color: "#c08457" },
-    { label: "箱代",      value: r.boxCost,      color: "#90caf9" },
+    { label: "梱包代",    value: r.boxCost,      color: "#90caf9" },
     { label: "送料",      value: r.shippingCost, color: "#ef9a9a" },
     { label: "その他",    value: r.otherCost,    color: "#cfc4e0" },
   ].filter(function (i) { return i.value > 0; });
@@ -215,7 +215,7 @@ function renderResultTable(r) {
         { label: "種代合計", value: yen(r.seedCost) },
         { label: "ポット代合計", value: yen(r.potCost) },
         { label: "培土代合計", value: yen(r.soilCost) },
-        { label: "箱代合計", value: yen(r.boxCost) },
+        { label: "梱包代合計", value: yen(r.boxCost) },
         { label: "送料合計", value: yen(r.shippingCost) },
         { label: "その他経費", value: yen(r.otherCost) },
         { label: "総経費", value: yen(r.totalCost), cls: "subtotal" },
@@ -225,7 +225,7 @@ function renderResultTable(r) {
       title: "利益・損益分岐",
       rows: [
         { label: "粗利益", value: yen(r.grossProfit), cls: "total", profit: r.grossProfit },
-        { label: "1本あたり利益", value: yen(r.profitPerUnit), profit: r.profitPerUnit },
+        { label: "1本あたり", value: yen(r.profitPerUnit), profit: r.profitPerUnit },
         { label: "損益分岐 販売価格", value: yen(r.breakEvenPrice) },
         { label: "損益分岐 販売本数", value: unitsText(r.breakEvenUnits) },
       ],
@@ -283,7 +283,7 @@ function renderCompareTable(baseInput) {
     { label: "総経費", get: function (s) { return yen(s.res.totalCost); } },
     { label: "粗利益", strong: true, get: function (s) {
         return `<span class="${signClass(s.res.grossProfit)}">${yen(s.res.grossProfit)}</span>`; } },
-    { label: "1本あたり利益", get: function (s) {
+    { label: "1本あたり", get: function (s) {
         return `<span class="${signClass(s.res.profitPerUnit)}">${yen(s.res.profitPerUnit)}</span>`; } },
   ];
 
