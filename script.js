@@ -131,7 +131,6 @@ function unitsText(v) {
   return (Math.round(v * 10) / 10).toLocaleString("ja-JP") + " 本";
 }
 function n(v) { return (Math.round(v)).toLocaleString("ja-JP"); }
-function yenC(v) { return !isFinite(v) ? "—" : Math.round(v).toLocaleString("ja-JP"); } // 「円」を省いた数値（比較表用）
 function n1(v) { return (Math.round(v * 10) / 10).toLocaleString("ja-JP"); }
 function signClass(v) { return v >= 0 ? "plus" : "minus"; }
 
@@ -563,27 +562,20 @@ function syncTitle() {
 function switchTab(id) {
   if (id === activeId) return;
   saveActive();
-  const dir = tabIndex(id) > tabIndex(activeId) ? 1 : -1;
   activeId = id;
   applyState(getTab(id).state);
-  syncTitle();
-  renderTabBar();      // ハイライトと内容を即座に更新
   recalcAll();
-  animateIn(dir);
+  updateActiveTab();   // ドックは作り直さず、アクティブ表示だけ更新（左端へ飛ぶのを防ぐ）
 }
 
-// 新しいタブの内容を、進む方向からスライド＋フェードで入れる
-function animateIn(dir) {
-  const el = document.querySelector(".layout");
-  el.style.transition = "none";
-  el.style.transform = "translateX(" + (16 * dir) + "px)";
-  el.style.opacity = "0";
-  void el.offsetWidth;               // リフロー強制
-  el.style.transition = "";
-  requestAnimationFrame(function () {
-    el.style.transform = "translateX(0)";
-    el.style.opacity = "1";
+// タブを再描画せず、アクティブ表示・タイトル・ドックのセンタリングだけ更新する。
+// （innerHTMLの作り直しを避けることで、横スクロール位置のリセット＝左端ジャンプを防ぐ）
+function updateActiveTab() {
+  document.querySelectorAll(".tab-scroll button.tab").forEach(function (b) {
+    b.classList.toggle("active", b.dataset.id === activeId);
   });
+  syncTitle();
+  scrollActiveIntoView();
 }
 
 // 品目を追加（数値は未入力。名前は長押しで改名できる）

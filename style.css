@@ -44,7 +44,7 @@ body {
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
   /* 下部固定タブに隠れないよう余白を確保 */
-  padding-bottom: calc(66px + var(--safe-b));
+  padding-bottom: calc(72px + var(--safe-b));
   /* アプリ感：タップ時のハイライト・テキスト選択・長押しメニューを抑制 */
   -webkit-tap-highlight-color: transparent;
   -webkit-user-select: none;
@@ -76,7 +76,7 @@ input, select, textarea {
   flex: 1 1 auto;
   display: flex;
   gap: 4px;
-  padding: 4px 6px;
+  padding: 9px 6px 3px;   /* 上に拡大ぶんの余白を確保し、拡大時に上端が切れないように */
   overflow-x: auto;
   overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
@@ -110,8 +110,8 @@ input, select, textarea {
   transition: transform .12s ease, background .12s ease;
   transform-origin: bottom center;
 }
-.tabbar button.tab:hover { transform: scale(1.12); }
-.tabbar button.tab:active { transform: scale(1.04); }
+.tabbar button.tab:hover { transform: scale(1.1); }
+.tabbar button.tab:active { transform: scale(1.05); }
 /* 追加タブの × 削除ボタン */
 .tabbar .tab-del {
   position: absolute;
@@ -160,16 +160,12 @@ input, select, textarea {
   padding: calc(16px + var(--safe-t)) calc(20px + var(--safe-r)) 16px calc(20px + var(--safe-l));
 }
 .app-header h1 { margin: 0 0 4px; font-size: 1.35rem; letter-spacing: .02em; }
-.subtitle { margin: 0; font-size: 0.82rem; opacity: 0.95; }
 
 /* ---------- レイアウト ---------- */
 .layout {
   display: grid;
   grid-template-columns: minmax(320px, 420px) minmax(0, 1fr);
   gap: 18px;
-  /* タブ切替をなめらかにするトランジション */
-  transition: opacity .18s ease, transform .18s ease;
-  will-change: opacity, transform;
   padding: 16px calc(16px + var(--safe-r)) calc(24px + var(--safe-b)) calc(16px + var(--safe-l));
   max-width: 1200px;
   margin: 0 auto;
@@ -207,7 +203,6 @@ input, select, textarea {
 .subhead:first-of-type { margin-top: 6px; }
 
 .hint { font-size: 0.76rem; color: var(--muted); margin: 4px 0 10px; }
-.footnote { font-size: 0.72rem; color: var(--muted); margin-top: 14px; }
 
 /* ---------- 入力パネル見出し ---------- */
 .panel-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
@@ -458,7 +453,6 @@ input, select, textarea {
 .cost-leg i { width: 11px; height: 11px; border-radius: 3px; display: inline-block; }
 
 /* ---------- 結果テーブル ---------- */
-.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 .result-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
 .result-table th, .result-table td {
   border-bottom: 1px solid var(--border);
