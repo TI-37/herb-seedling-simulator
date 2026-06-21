@@ -368,7 +368,6 @@ const TAB_INPUT_IDS = [
 let tabs = [];          // [{ id, name, state }]
 let activeId = null;
 let tabSeq = 0;         // 一意なID採番
-let animating = false;  // 切替アニメーション中フラグ
 
 // HTMLの危険文字をエスケープ（品目名をそのまま埋め込むため）
 function escapeHtml(s) {
@@ -559,34 +558,31 @@ function syncTitle() {
   document.getElementById("plantName").textContent = getTab(activeId).name;
 }
 
-// スムーズなスライド＋フェードでタブ内容を入れ替える
-function animateSwap(dir, swap) {
-  const el = document.querySelector(".layout");
-  animating = true;
-  el.style.transform = "translateX(" + (-20 * dir) + "px)";
-  el.style.opacity = "0";
-  window.setTimeout(function () {
-    swap();
-    el.style.transition = "none";
-    el.style.transform = "translateX(" + (20 * dir) + "px)";
-    void el.offsetWidth;            // リフロー強制
-    el.style.transition = "";
-    el.style.transform = "translateX(0)";
-    el.style.opacity = "1";
-    animating = false;
-  }, 180);
-}
-
+// 切替は即座に内容を入れ替え、新しい内容をスッとスライドインさせる。
+// 古い内容を見せ続けないので「一瞬前のタブ（ラベンダー）に戻る」感がなくなる。
 function switchTab(id) {
-  if (id === activeId || animating) return;
+  if (id === activeId) return;
   saveActive();
   const dir = tabIndex(id) > tabIndex(activeId) ? 1 : -1;
-  animateSwap(dir, function () {
-    activeId = id;
-    applyState(getTab(id).state);
-    syncTitle();
-    renderTabBar();
-    recalcAll();
+  activeId = id;
+  applyState(getTab(id).state);
+  syncTitle();
+  renderTabBar();      // ハイライトと内容を即座に更新
+  recalcAll();
+  animateIn(dir);
+}
+
+// 新しいタブの内容を、進む方向からスライド＋フェードで入れる
+function animateIn(dir) {
+  const el = document.querySelector(".layout");
+  el.style.transition = "none";
+  el.style.transform = "translateX(" + (16 * dir) + "px)";
+  el.style.opacity = "0";
+  void el.offsetWidth;               // リフロー強制
+  el.style.transition = "";
+  requestAnimationFrame(function () {
+    el.style.transform = "translateX(0)";
+    el.style.opacity = "1";
   });
 }
 
